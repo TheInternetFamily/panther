@@ -30,15 +30,17 @@ final class ChromeManager implements BrowserManagerInterface
     private $process;
     private $arguments;
     private $options;
+    private $extensions;
 
     /**
      * @throws \RuntimeException
      */
-    public function __construct(?string $chromeDriverBinary = null, ?array $arguments = null, array $options = [])
+    public function __construct(?string $chromeDriverBinary = null, ?array $arguments = null, array $options = [], array $extensions = [])
     {
         $this->options = array_merge($this->getDefaultOptions(), $options);
         $this->process = $this->createProcess($chromeDriverBinary ?: $this->findChromeDriverBinary());
         $this->arguments = $arguments ?? $this->getDefaultArguments();
+        $this->extensions = $extensions;
     }
 
     /**
@@ -62,6 +64,7 @@ final class ChromeManager implements BrowserManagerInterface
         if ($this->arguments) {
             $chromeOptions = new ChromeOptions();
             $chromeOptions->addArguments($this->arguments);
+            $chromeOptions->addExtensions($this->extensions);
             $capabilities->setCapability(ChromeOptions::CAPABILITY, $chromeOptions);
             if (isset($_SERVER['PANTHER_CHROME_BINARY'])) {
                 $chromeOptions->setBinary($_SERVER['PANTHER_CHROME_BINARY']);
